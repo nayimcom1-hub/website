@@ -71,10 +71,12 @@ const firebaseConfig = {
   apiKey: "AIzaSyCkYMVn0Jh4Oo8Mgm8WyVAOVe65lSLGeks",
   authDomain: "barrahms-app.firebaseapp.com",
   projectId: "barrahms-app",
-  storageBucket: "barrahms-app.appspot.com",
+  storageBucket: "barrahms-app.firebasestorage.app",
   messagingSenderId: "886499355529",
-  appId: "1:886499355529:web:051977ab95fdc3d9b5cf58"
+  appId: "1:886499355529:web:7b6f08565c23f980b5cf58",
+  measurementId: "G-XN5BMKRMED"
 };
+  
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -122,3 +124,4 @@ function goHome(){ filterCategory('All'); }
 
 </body>
 </html>
+
