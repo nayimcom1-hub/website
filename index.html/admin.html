@@ -23,6 +23,7 @@ button:hover{background:#ffdb4d;}
     <h3>Add Product</h3>
     <input type="text" id="productName" placeholder="Product Name">
     <input type="text" id="productCategory" placeholder="Category">
+    <input type="text" id="productPrice" placeholder="Price">
     <input type="text" id="productImageURL" placeholder="Image URL">
     <button onclick="addProduct()">Add Product</button>
 
@@ -30,80 +31,66 @@ button:hover{background:#ffdb4d;}
     <div class="products" id="adminProductList"></div>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCkYMVn0Jh4Oo8Mgm8WyVAOVe65lSLGeks",
-    authDomain: "barrahms-app.firebaseapp.com",
-    projectId: "barrahms-app",
-    storageBucket: "barrahms-app.appspot.com",
-    messagingSenderId: "886499355529",
-    appId: "1:886499355529:web:051977ab95fdc3d9b5cf58"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCkYMVn0Jh4Oo8Mgm8WyVAOVe65lSLGeks",
+  authDomain: "barrahms-app.firebaseapp.com",
+  projectId: "barrahms-app",
+  storageBucket: "barrahms-app.appspot.com",
+  messagingSenderId: "886499355529",
+  appId: "1:886499355529:web:051977ab95fdc3d9b5cf58"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  // Load existing products
-  function loadProducts(){
-      const adminList = document.getElementById("adminProductList");
-      adminList.innerHTML = '';
-      db.collection("products").get()
-      .then(snapshot => {
-          snapshot.forEach(doc => {
-              const data = doc.data();
-              const card = document.createElement("div");
-              card.className = "card";
-              card.innerHTML = `
+function loadProducts(){
+    const adminList = document.getElementById("adminProductList");
+    adminList.innerHTML='';
+    db.collection("products").get().then(snapshot=>{
+        snapshot.forEach(doc=>{
+            const data=doc.data();
+            const card=document.createElement("div");
+            card.className="card";
+            card.innerHTML=`
                 <img src="${data.imageURL}" alt="${data.name}">
                 <h4>${data.name}</h4>
                 <p>Category: ${data.category}</p>
+                <p>Price: ${data.price} ৳</p>
                 <button onclick="deleteProduct('${doc.id}')">Delete</button>
-              `;
-              adminList.appendChild(card);
-          });
-      }).catch(err => console.error(err));
-  }
+            `;
+            adminList.appendChild(card);
+        });
+    });
+}
+loadProducts();
 
-  loadProducts();
+function addProduct(){
+    const name=document.getElementById("productName").value.trim();
+    const category=document.getElementById("productCategory").value.trim();
+    const price=document.getElementById("productPrice").value.trim();
+    const imageURL=document.getElementById("productImageURL").value.trim();
 
-  // Add Product
-  function addProduct(){
-      const name = document.getElementById("productName").value.trim();
-      const category = document.getElementById("productCategory").value.trim();
-      const imageURL = document.getElementById("productImageURL").value.trim();
+    if(!name || !category || !price || !imageURL){ alert("All fields are required!"); return; }
 
-      if(!name || !category || !imageURL){
-          alert("All fields are required!");
-          return;
-      }
+    db.collection("products").add({name, category, price, imageURL})
+    .then(()=>{
+        alert("Product added successfully!");
+        document.getElementById("productName").value='';
+        document.getElementById("productCategory").value='';
+        document.getElementById("productPrice").value='';
+        document.getElementById("productImageURL").value='';
+        loadProducts();
+    }).catch(err=>console.error(err));
+}
 
-      db.collection("products").add({
-          name: name,
-          category: category,
-          imageURL: imageURL
-      }).then(() => {
-          alert("Product added successfully!");
-          document.getElementById("productName").value = '';
-          document.getElementById("productCategory").value = '';
-          document.getElementById("productImageURL").value = '';
-          loadProducts();
-      }).catch(err => console.error(err));
-  }
-
-  // Delete Product
-  function deleteProduct(id){
-      if(confirm("Are you sure you want to delete this product?")){
-          db.collection("products").doc(id).delete()
-          .then(() => loadProducts())
-          .catch(err => console.error(err));
-      }
-  }
+function deleteProduct(id){
+    if(confirm("Are you sure to delete this product?")){
+        db.collection("products").doc(id).delete().then(()=>loadProducts()).catch(err=>console.error(err));
+    }
+}
 </script>
 </body>
 </html>
