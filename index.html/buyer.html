@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{margin:0;font-family:Arial;background:#f5f5f5;}
-.header{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#e60000;color:white;position:sticky;top:0;}
-.header h2{margin:0;}
-.header .search-box input{padding:5px; border-radius:4px;}
-button{cursor:pointer;border:none;padding:6px 10px;margin:2px;border-radius:4px;}
-.container{display:flex;flex-wrap:wrap;}
+header{display:flex;align-items:center;justify-content:flex-start;padding:10px;background:#e60000;color:white;position:sticky;top:0;flex-wrap:wrap;gap:10px;}
+header h2{margin:0;color:white;}
+.menu button, .menu input{border:none;border-radius:4px;padding:5px;cursor:pointer;}
+.menu button{background:white;color:black;}
+.menu button:hover{background:#ffdb4d;}
+.menu input{width:150px;padding:5px;}
+.container{display:flex;flex-wrap:wrap;margin-top:10px;}
 .sidebar{width:200px;background:white;padding:20px;flex-shrink:0;}
 .sidebar h3{margin-top:0;}
 .sidebar ul{list-style:none;padding:0;}
@@ -19,29 +21,24 @@ button{cursor:pointer;border:none;padding:6px 10px;margin:2px;border-radius:4px;
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;}
 .card{background:white;padding:10px;text-align:center;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
 .card img{width:100%;height:150px;object-fit:cover;border-radius:4px;}
-.card button{background:#ffcc00;width:100%;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:100;}
+.modal-content{background:white;padding:20px;width:300px;border-radius:8px;position:relative;}
+.modal-content input{width:100%;margin:5px 0;}
+.modal-close{cursor:pointer;color:red;position:absolute;top:10px;right:10px;font-weight:bold;font-size:18px;}
 .cart{position:fixed;right:20px;top:100px;background:red;color:white;padding:10px;border-radius:8px;z-index:100;}
-.about{background:white;padding:20px;margin-top:20px;border-radius:8px;}
-.auth-buttons button{background:white;color:black;margin:0 5px;}
+.about-content p{margin:5px 0;}
 @media(max-width:768px){.container{flex-direction:column;}.sidebar{width:100%;display:flex;overflow-x:auto;}.sidebar ul{display:flex;}.sidebar li{padding:10px 15px;white-space:nowrap;}}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div>
-    <button onclick="goHome()">Home</button>
-  </div>
-  <h2>Grocery Shop</h2>
-  <div>
-    <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchProduct()">
-    <div class="auth-buttons">
-      <button onclick="alert('Sign Up')">Sign Up</button>
-      <button onclick="alert('Login')">Login</button>
-    </div>
-  </div>
-  <div class="cart">Cart: <span id="cart-count">0</span></div>
-</div>
+<header class="menu">
+  <button onclick="goHome()">Home</button>
+  <button onclick="openAbout()">About</button>
+  <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchProduct()">
+  <button onclick="openSignUp()">Sign Up</button>
+  <button onclick="openLogin()">Login</button>
+</header>
 
 <div class="container">
   <div class="sidebar">
@@ -56,72 +53,140 @@ button{cursor:pointer;border:none;padding:6px 10px;margin:2px;border-radius:4px;
   </div>
   <div class="main">
     <div class="products" id="productList"></div>
-    <div class="about">
-      <h3>About This Shop</h3>
-      <p>Welcome to our Grocery Shop! Buy fresh products online. Fast delivery and best prices guaranteed.</p>
+  </div>
+</div>
+
+<!-- Buyer Modal -->
+<div class="modal" id="buyerModal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal('buyerModal')">×</span>
+    <h3>Buyer Details</h3>
+    <input type="text" id="buyerName" placeholder="Full Name">
+    <input type="text" id="buyerPhone" placeholder="Phone Number">
+    <input type="text" id="buyerAddress" placeholder="Address">
+    <button onclick="submitOrder()">Submit Order</button>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div class="modal" id="aboutModal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal('aboutModal')">×</span>
+    <h3>About This Shop</h3>
+    <div class="about-content">
+      <p>Grocery Shop – Fresh products online</p>
+      <p>Fast delivery & best prices!</p>
+      <p>Contact: info@groceryshop.com</p>
     </div>
+  </div>
+</div>
+
+<!-- SignUp Modal -->
+<div class="modal" id="signUpModal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal('signUpModal')">×</span>
+    <h3>Sign Up</h3>
+    <input type="text" id="signupName" placeholder="Full Name">
+    <input type="email" id="signupEmail" placeholder="Email">
+    <input type="password" id="signupPassword" placeholder="Password">
+    <button onclick="signup()">Sign Up</button>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal" id="loginModal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal('loginModal')">×</span>
+    <h3>Login</h3>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="login()">Login</button>
   </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyCkYMVn0Jh4Oo8Mgm8WyVAOVe65lSLGeks",
   authDomain: "barrahms-app.firebaseapp.com",
   projectId: "barrahms-app",
-  storageBucket: "barrahms-app.firebasestorage.app",
+  storageBucket: "barrahms-app.appspot.com",
   messagingSenderId: "886499355529",
-  appId: "1:886499355529:web:7b6f08565c23f980b5cf58",
-  measurementId: "G-XN5BMKRMED"
+  appId: "1:886499355529:web:7b6f08565c23f980b5cf58"
 };
-  
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
-let cartCount=0;
-const productList=document.getElementById("productList");
+let cartCount = 0;
+const productList = document.getElementById("productList");
 
+// Load products
 db.collection("products").onSnapshot(snapshot=>{
   productList.innerHTML='';
   snapshot.forEach(doc=>{
-    const data=doc.data();
-    const card=document.createElement("div");
+    const data = doc.data();
+    const card = document.createElement("div");
     card.className="card";
-    card.dataset.category=data.category;
-    card.innerHTML=`
-      <img src="${data.imageURL}" alt="${data.name}">
+    card.dataset.category = data.category;
+    card.innerHTML=`<img src="${data.imageURL}" alt="${data.name}">
       <h4>${data.name}</h4>
       <p>Price: ${data.price} ৳</p>
-      <button onclick="addToCart(event)">Add to Cart</button>
-    `;
+      <button onclick="openModal('${data.name}')">Add to Cart</button>`;
     productList.appendChild(card);
   });
 });
 
-function addToCart(event){
-  event.stopPropagation();
-  cartCount++;
-  document.getElementById("cart-count").innerText=cartCount;
+// Buyer modal
+function openModal(product){
+  document.getElementById("buyerModal").style.display="flex";
+  document.getElementById("buyerModal").dataset.product=product;
+}
+function closeModal(modalId){document.getElementById(modalId).style.display="none";}
+function submitOrder(){
+  const name = document.getElementById("buyerName").value.trim();
+  const phone = document.getElementById("buyerPhone").value.trim();
+  const address = document.getElementById("buyerAddress").value.trim();
+  const product = document.getElementById("buyerModal").dataset.product;
+  if(!name || !phone || !address){alert("Fill all fields!"); return;}
+  db.collection("orders").add({name,phone,address,product,time:firebase.firestore.FieldValue.serverTimestamp(),status:'Pending'})
+  .then(()=>{alert("Order placed!");closeModal('buyerModal');document.getElementById("buyerName").value='';document.getElementById("buyerPhone").value='';document.getElementById("buyerAddress").value='';})
+  .catch(err=>alert(err.message));
 }
 
-function filterCategory(category){
-  document.querySelectorAll(".card").forEach(c=>{
-    c.style.display=(category==='All' || c.dataset.category===category)?'block':'none';
-  });
+// Filter & search
+function filterCategory(cat){document.querySelectorAll(".card").forEach(c=>{c.style.display=(cat==='All'||c.dataset.category===cat)?'block':'none';});}
+function searchProduct(){const val=document.getElementById("searchInput").value.toLowerCase();document.querySelectorAll(".card").forEach(c=>{c.style.display=c.innerText.toLowerCase().includes(val)?'block':'none';});}
+function goHome(){filterCategory('All');}
+
+// About Modal
+function openAbout(){document.getElementById('aboutModal').style.display='flex';}
+
+// Firebase Auth
+function openSignUp(){document.getElementById('signUpModal').style.display='flex';}
+function openLogin(){document.getElementById('loginModal').style.display='flex';}
+
+function signup(){
+  const name=document.getElementById("signupName").value.trim();
+  const email=document.getElementById("signupEmail").value.trim();
+  const pass=document.getElementById("signupPassword").value.trim();
+  if(!name || !email || !pass){alert("Fill all fields!"); return;}
+  auth.createUserWithEmailAndPassword(email,pass)
+  .then(()=>{alert("Sign Up Successful!");closeModal('signUpModal');})
+  .catch(err=>alert(err.message));
 }
 
-function searchProduct(){
-  const input=document.getElementById("searchInput").value.toLowerCase();
-  document.querySelectorAll(".card").forEach(c=>{
-    c.style.display=c.innerText.toLowerCase().includes(input)?'block':'none';
-  });
+function login(){
+  const email=document.getElementById("loginEmail").value.trim();
+  const pass=document.getElementById("loginPassword").value.trim();
+  if(!email || !pass){alert("Fill all fields!"); return;}
+  auth.signInWithEmailAndPassword(email,pass)
+  .then(()=>{alert("Login Successful!");closeModal('loginModal');})
+  .catch(err=>alert(err.message));
 }
-
-function goHome(){ filterCategory('All'); }
 </script>
-
 </body>
 </html>
-
