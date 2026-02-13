@@ -8,8 +8,7 @@ body{margin:0;font-family:Arial;background:#f5f5f5;}
 .header{background:#e60000;color:white;padding:15px;text-align:center;}
 .main{padding:20px;}
 input, button{padding:8px;margin:5px;font-size:16px;}
-button{background:#ffcc00;border:none;cursor:pointer;border-radius:5px;transition:0.3s;}
-button:hover{background:#ffdb4d;}
+button{background:#ffcc00;border:none;cursor:pointer;border-radius:5px;}
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-top:20px;}
 .card{background:white;padding:10px;text-align:center;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
 .card img{width:100%;height:120px;object-fit:cover;border-radius:5px;}
@@ -20,15 +19,15 @@ button:hover{background:#ffdb4d;}
 <div class="header"><h2>Admin Panel - Grocery Shop</h2></div>
 
 <div class="main">
-    <h3>Add Product</h3>
-    <input type="text" id="productName" placeholder="Product Name">
-    <input type="text" id="productCategory" placeholder="Category">
-    <input type="text" id="productPrice" placeholder="Price">
-    <input type="text" id="productImageURL" placeholder="Image URL">
-    <button onclick="addProduct()">Add Product</button>
+  <h3>Add Product</h3>
+  <input type="text" id="productName" placeholder="Product Name">
+  <input type="text" id="productCategory" placeholder="Category">
+  <input type="number" id="productPrice" placeholder="Price">
+  <input type="text" id="productImageURL" placeholder="Image URL">
+  <button onclick="addProduct()">Add Product</button>
 
-    <h3>Existing Products</h3>
-    <div class="products" id="adminProductList"></div>
+  <h3>Existing Products</h3>
+  <div class="products" id="adminProductList"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -47,49 +46,49 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 function loadProducts(){
-    const adminList = document.getElementById("adminProductList");
-    adminList.innerHTML='';
-    db.collection("products").get().then(snapshot=>{
-        snapshot.forEach(doc=>{
-            const data=doc.data();
-            const card=document.createElement("div");
-            card.className="card";
-            card.innerHTML=`
-                <img src="${data.imageURL}" alt="${data.name}">
-                <h4>${data.name}</h4>
-                <p>Category: ${data.category}</p>
-                <p>Price: ${data.price} ৳</p>
-                <button onclick="deleteProduct('${doc.id}')">Delete</button>
-            `;
-            adminList.appendChild(card);
-        });
+  const adminList = document.getElementById("adminProductList");
+  adminList.innerHTML='';
+  db.collection("products").get().then(snapshot=>{
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${data.imageURL}" alt="${data.name}">
+        <h4>${data.name}</h4>
+        <p>Category: ${data.category}</p>
+        <p>Price: ${data.price} ৳</p>
+        <button onclick="deleteProduct('${doc.id}')">Delete</button>
+      `;
+      adminList.appendChild(card);
     });
+  });
 }
 loadProducts();
 
 function addProduct(){
-    const name=document.getElementById("productName").value.trim();
-    const category=document.getElementById("productCategory").value.trim();
-    const price=document.getElementById("productPrice").value.trim();
-    const imageURL=document.getElementById("productImageURL").value.trim();
+  const name = document.getElementById("productName").value.trim();
+  const category = document.getElementById("productCategory").value.trim();
+  const price = document.getElementById("productPrice").value.trim();
+  const imageURL = document.getElementById("productImageURL").value.trim();
 
-    if(!name || !category || !price || !imageURL){ alert("All fields are required!"); return; }
+  if(!name || !category || !price || !imageURL){ alert("All fields are required!"); return; }
 
-    db.collection("products").add({name, category, price, imageURL})
-    .then(()=>{
-        alert("Product added successfully!");
-        document.getElementById("productName").value='';
-        document.getElementById("productCategory").value='';
-        document.getElementById("productPrice").value='';
-        document.getElementById("productImageURL").value='';
-        loadProducts();
-    }).catch(err=>console.error(err));
+  db.collection("products").add({name, category, price, imageURL})
+  .then(()=>{
+    alert("Product added successfully!");
+    document.getElementById("productName").value='';
+    document.getElementById("productCategory").value='';
+    document.getElementById("productPrice").value='';
+    document.getElementById("productImageURL").value='';
+    loadProducts();
+  }).catch(err=>alert(err.message));
 }
 
 function deleteProduct(id){
-    if(confirm("Are you sure to delete this product?")){
-        db.collection("products").doc(id).delete().then(()=>loadProducts()).catch(err=>console.error(err));
-    }
+  if(confirm("Are you sure you want to delete this product?")){
+    db.collection("products").doc(id).delete().then(()=>loadProducts()).catch(err=>alert(err.message));
+  }
 }
 </script>
 </body>
