@@ -1,88 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grocery Shop</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            padding: 50px;
-        }
-
-        h2 {
-            color: #2c3e50;
-        }
-
-        .button {
-            display: inline-block;
-            margin: 20px;
-            padding: 15px 40px;
-            font-size: 20px;
-            color: white;
-            background-color: #27ae60;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .button:hover {
-            background-color: #2ecc71;
-        }
-
-        #admin-password-container {
-            display: none;
-            margin-top: 20px;
-        }
-
-        input[type="password"] {
-            padding: 10px;
-            font-size: 16px;
-            width: 200px;
-            margin-right: 10px;
-        }
-
-        p {
-            color: red;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grocery Shop</title>
+<style>
+body{font-family:Arial;text-align:center;background:#f4f4f4;padding:50px;}
+h2{color:#2c3e50;}
+.button{margin:20px;padding:15px 40px;font-size:20px;color:white;background-color:#27ae60;border:none;border-radius:5px;cursor:pointer;transition:0.3s;}
+.button:hover{background-color:#2ecc71;}
+#admin-password-container{display:none;margin-top:20px;}
+input[type="password"]{padding:10px;font-size:16px;width:200px;margin-right:10px;}
+p{color:red;}
+</style>
 </head>
 <body>
-    <h2>Welcome to Grocery Shop</h2>
-    <p>Are you a Buyer or Admin?</p>
+<h2>Welcome to Grocery Shop</h2>
+<p>Are you a Buyer or Admin?</p>
+<button class="button" onclick="enterBuyer()">Buyer</button>
+<button class="button" onclick="showAdminLogin()">Admin</button>
 
-    <button class="button" onclick="enterBuyer()">Buyer</button>
-    <button class="button" onclick="showAdminLogin()">Admin</button>
+<div id="admin-password-container">
+    <input type="password" id="admin-password" placeholder="Enter Admin Password">
+    <button class="button" onclick="loginAdmin()">Login</button>
+    <p id="admin-message"></p>
+</div>
 
-    <div id="admin-password-container">
-        <input type="password" id="admin-password" placeholder="Enter Admin Password">
-        <button class="button" onclick="loginAdmin()">Login</button>
-        <p id="admin-message"></p>
-    </div>
-
-    <script>
-        function enterBuyer() {
-            // Directly go to buyer page
-            window.location.href = "buyer.html";
-        }
-
-        function showAdminLogin() {
-            document.getElementById('admin-password-container').style.display = "block";
-        }
-
-        function loginAdmin() {
-            const password = document.getElementById('admin-password').value;
-            const adminPass = "123abc"; // Set your admin password here
-
-            if(password === adminPass){
-                window.location.href = "admin.html";
-            } else {
-                document.getElementById('admin-message').innerText = "Incorrect password!";
-            }
-        }
-    </script>
+<script>
+function enterBuyer(){ window.location.href="buyer.html"; }
+function showAdminLogin(){ document.getElementById('admin-password-container').style.display="block"; }
+function loginAdmin(){
+    const password = document.getElementById('admin-password').value;
+    const adminPass = "123abc"; // Set your admin password
+    if(password === adminPass){
+        window.location.href="admin.html";
+    } else {
+        document.getElementById('admin-message').innerText="Incorrect password!";
+    }
+}
+</script>
 </body>
 </html>
