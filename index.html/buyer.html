@@ -4,55 +4,110 @@
 <title>Grocery Shop - Buyer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{margin:0;font-family:Arial;background:#f5f5f5;}
-.header{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#e60000;color:white;position:sticky;top:0;}
-.header h2{margin:0;font-size:20px;}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
 button{cursor:pointer;border:none;padding:6px 10px;margin:2px;border-radius:4px;}
 input{padding:6px;margin:2px;border-radius:4px;border:1px solid #ccc;}
+
+/* Header / Menu bar */
+.header{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#e60000;color:white;position:sticky;top:0;z-index:100;}
+.header h2{margin:0;font-size:20px;}
+.menu-btn,.home-btn,.auth-btn{background:white;color:black;font-weight:bold;padding:5px 10px;border-radius:4px;}
+
+/* Dropdown menu inside menu bar */
+.menu-dropdown{display:none;position:absolute;top:40px;left:10px;background:white;color:black;min-width:150px;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,0.2);z-index:150;}
+.menu-dropdown li{padding:10px;cursor:pointer;list-style:none;}
+.menu-dropdown li:hover{background:#f0f0f0;}
+
+/* Search box */
+.search-box input{padding:5px 10px;border-radius:4px;border:none;width:180px;}
+
+/* Container */
 .container{display:flex;flex-wrap:wrap;}
-.sidebar{width:200px;background:white;padding:20px;flex-shrink:0;}
-.sidebar h3{margin-top:0;}
-.sidebar ul{list-style:none;padding:0;}
-.sidebar li{padding:8px 0;cursor:pointer;}
-.sidebar li:hover{color:red;}
 .main{flex:1;padding:20px;}
 .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;}
 .card{background:white;padding:10px;text-align:center;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
 .card img{width:100%;height:150px;object-fit:cover;border-radius:4px;}
 .card button{background:#ffcc00;width:100%;}
+
+/* Cart */
 .cart{position:fixed;right:20px;top:100px;background:red;color:white;padding:10px;border-radius:8px;z-index:100;}
+
+/* About Section */
+.about{background:white;padding:20px;margin-top:20px;border-radius:8px;}
+
+/* Auth Modal */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:200;}
+.modal-content{background:white;padding:20px;width:300px;position:relative;border-radius:8px;}
+.modal-content input{width:100%;margin:5px 0;}
+.modal-close{position:absolute;top:5px;right:10px;font-weight:bold;color:red;cursor:pointer;}
+.tab-btns button.active{background:#ffcc00;}
+
+@media(max-width:768px){
+  .products{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
+}
 </style>
 </head>
 <body>
 
+<!-- Header -->
 <div class="header">
-  <div>
-    <h2>Grocery Shop</h2>
-  </div>
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchProduct()">
-  </div>
-  <div class="cart">Cart: <span id="cart-count">0</span></div>
-</div>
-
-<div class="container">
-  <div class="sidebar" id="sidebar">
-    <h3>Categories</h3>
-    <ul>
+  <div style="position:relative;">
+    <button class="menu-btn" onclick="toggleMenu()">☰ Menu</button>
+    <ul class="menu-dropdown" id="menuDropdown">
+      <li onclick="goHome()">Home</li>
       <li onclick="filterCategory('Food')">Food</li>
       <li onclick="filterCategory('Drink')">Drink</li>
       <li onclick="filterCategory('Frozen')">Frozen</li>
       <li onclick="filterCategory('Mobile')">Mobile</li>
-      <li onclick="filterCategory('All')">All</li>
+      <li onclick="openAbout()">About This Shop</li>
     </ul>
   </div>
-  <div class="main">
-    <div class="products" id="productList"></div>
+  <h2>Grocery Shop</h2>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchProduct()">
+    </div>
+    <button class="auth-btn" onclick="openAuthModal()">Login / Sign Up</button>
+    <div class="cart">Cart: <span id="cart-count">0</span></div>
   </div>
 </div>
 
+<!-- Main Content -->
+<div class="main">
+  <div class="products" id="productList"></div>
+  
+  <div class="about" id="aboutSection" style="display:none;">
+    <h3>About This Shop</h3>
+    <p>Welcome to our Grocery Shop! Buy fresh products online. Fast delivery and best prices guaranteed.</p>
+  </div>
+</div>
+
+<!-- Auth Modal -->
+<div class="modal" id="authModal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal('authModal')">×</span>
+    <div class="tab-btns">
+      <button id="signupTab" class="active" onclick="switchTab('signup')">Sign Up</button>
+      <button id="loginTab" onclick="switchTab('login')">Login</button>
+    </div>
+    <div id="signupForm">
+      <input type="text" id="signupUsername" placeholder="Username">
+      <input type="email" id="signupEmail" placeholder="Email">
+      <input type="password" id="signupPassword" placeholder="Password">
+      <button onclick="registerUser()">Register</button>
+    </div>
+    <div id="loginForm" style="display:none;">
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPassword" placeholder="Password">
+      <button onclick="loginUser()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -65,46 +120,92 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 let cartCount=0;
 const productList=document.getElementById("productList");
 
+/* Load products */
 db.collection("products").onSnapshot(snapshot=>{
-    productList.innerHTML='';
-    snapshot.forEach(doc=>{
-        const data=doc.data();
-        const card=document.createElement("div");
-        card.className="card";
-        card.dataset.category=data.category;
-        card.innerHTML=`
-          <img src="${data.imageURL}" alt="${data.name}">
-          <h4>${data.name}</h4>
-          <p>Price: ${data.price} ৳</p>
-          <button onclick="addToCart(event)">Add to Cart</button>
-        `;
-        productList.appendChild(card);
-    });
+  productList.innerHTML='';
+  snapshot.forEach(doc=>{
+    const data=doc.data();
+    const card=document.createElement("div");
+    card.className="card";
+    card.dataset.category=data.category;
+    card.innerHTML=`
+      <img src="${data.imageURL}" alt="${data.name}">
+      <h4>${data.name}</h4>
+      <p>Price: ${data.price} ৳</p>
+      <button onclick="addToCart(event)">Add to Cart</button>
+    `;
+    productList.appendChild(card);
+  });
 });
 
+/* Cart */
 function addToCart(event){
-    event.stopPropagation();
-    cartCount++;
-    document.getElementById("cart-count").innerText=cartCount;
+  event.stopPropagation();
+  cartCount++;
+  document.getElementById("cart-count").innerText=cartCount;
+}
+
+/* Menu / Categories */
+function toggleMenu(){
+  const menu=document.getElementById("menuDropdown");
+  menu.style.display=(menu.style.display==='block')?'none':'block';
+}
+
+function goHome(){
+  filterCategory('All');
+  document.getElementById("aboutSection").style.display='none';
 }
 
 function filterCategory(category){
-    document.querySelectorAll(".card").forEach(c=>{
-        c.style.display=(category==='All' || c.dataset.category===category)?'block':'none';
-    });
+  document.querySelectorAll(".card").forEach(c=>{
+    c.style.display=(category==='All' || c.dataset.category===category)?'block':'none';
+  });
+  document.getElementById("aboutSection").style.display='none';
 }
 
+function openAbout(){
+  document.getElementById("aboutSection").style.display='block';
+  document.querySelectorAll(".card").forEach(c=>c.style.display='block');
+}
+
+/* Search */
 function searchProduct(){
-    const input=document.getElementById("searchInput").value.toLowerCase();
-    document.querySelectorAll(".card").forEach(c=>{
-        c.style.display=c.innerText.toLowerCase().includes(input)?'block':'none';
-    });
+  const input=document.getElementById("searchInput").value.toLowerCase();
+  document.querySelectorAll(".card").forEach(c=>{
+    c.style.display=c.innerText.toLowerCase().includes(input)?'block':'none';
+  });
+}
+
+/* Auth Modal */
+function openAuthModal(){document.getElementById("authModal").style.display="flex";}
+function switchTab(tab){
+  document.getElementById("signupForm").style.display=(tab==='signup')?'block':'none';
+  document.getElementById("loginForm").style.display=(tab==='login')?'block':'none';
+  document.getElementById("signupTab").className=(tab==='signup')?'active':'';
+  document.getElementById("loginTab").className=(tab==='login')?'active':'';
+}
+function closeModal(id){document.getElementById(id).style.display='none';}
+
+function registerUser(){
+  const email=document.getElementById("signupEmail").value;
+  const password=document.getElementById("signupPassword").value;
+  auth.createUserWithEmailAndPassword(email,password)
+  .then(()=>{ alert("User Registered!"); closeModal('authModal'); })
+  .catch(err=>alert(err.message));
+}
+
+function loginUser(){
+  const email=document.getElementById("loginEmail").value;
+  const password=document.getElementById("loginPassword").value;
+  auth.signInWithEmailAndPassword(email,password)
+  .then(()=>{ alert("Login Successful!"); closeModal('authModal'); })
+  .catch(err=>alert(err.message));
 }
 </script>
-
 </body>
 </html>
